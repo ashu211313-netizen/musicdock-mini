@@ -1,0 +1,5 @@
+const songs=[['Midnight Walk','MusicDock Studio · Demo',218],['Quiet Signals','MusicDock Studio · Demo',194],['Morning Light','MusicDock Studio · Demo',242]];
+let index=0,position=0,playing=false;const $=id=>document.getElementById(id);const time=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+function render(){const song=songs[index];$('song').textContent=song[0];$('artist').textContent=song[1];$('duration').textContent=time(song[2]);$('elapsed').textContent=time(position);$('seek').max=String(song[2]);$('seek').value=String(position);$('play').textContent=playing?'Ⅱ':'▶';$('play').setAttribute('aria-label',playing?'デモを一時停止':'デモを再生');}
+function change(step){index=(index+step+songs.length)%songs.length;position=0;render();}
+$('play').addEventListener('click',()=>{playing=!playing;render();});$('next').addEventListener('click',()=>change(1));$('prev').addEventListener('click',()=>change(-1));$('seek').addEventListener('input',e=>{position=Number(e.target.value);render();});setInterval(()=>{if(playing){position++;if(position>=songs[index][2])change(1);render();}},1000);render();
