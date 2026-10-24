@@ -5,7 +5,7 @@ YouTube Music用の非公式ミニプレイヤー。Windows 10/11のデスクト
 **状態: ローカルプレビュー版。GitHub / Pages / Releases / ストアは未公開。実YouTube Musicセッションでの受け入れ確認は未実施。**
 
 ## 使い方
-[導入ガイド](docs/INSTALL.md)を参照。dist/musicdock-mini-1.1.0.zipを展開し、拡張機能管理画面から読み込みます。YouTube Musicを更新し「♫ MINI」をクリック。元タブは開いたままにしてください。
+[導入ガイド](docs/INSTALL.md)を参照。dist/musicdock-mini-1.1.1.zipを展開し、拡張機能管理画面から読み込みます。YouTube Musicを更新し「♫ MINI」をクリック。元タブは開いたままにしてください。
 
 ## 開発
 Node.js 24以上、npm。ロックファイルは同梱しています。
@@ -35,7 +35,7 @@ Windowsでパッケージ化: `powershell -File scripts/package.ps1`。ビルド
 2. 新しいGitHubリポジトリにこのソースを登録。node_modules/distはコミットしない。
 3. Settings → Pages → SourceをGitHub Actionsに設定。
 4. mainへpushするとpages.ymlが検証・ビルド・Pages配信。実URLでダウンロードとリンクを確認。
-5. `v1.1.0` タグをpushするとrelease.ymlがZIPとハッシュをGitHub Releasesへ登録。
+5. `v1.1.1` タグをpushするとrelease.ymlがZIPとハッシュをGitHub Releasesへ登録。
 6. サイトのプライバシー説明に連絡先を追加、ストア申請準備を完了。
 
 利用可能なGitHubコネクターに新規repo/Pages/Release操作はありません。GitHub作成画面へのブラウザアクセスは承認ゲートで拒否されたため、回避経路で公開していません。

@@ -1,8 +1,8 @@
-# MusicDock Mini 1.1.0 導入ガイド
+# MusicDock Mini 1.1.1 導入ガイド
 
 Windows 10 / 11、最新のデスクトップ版Google ChromeまたはMicrosoft Edgeを使用してください。
 
-1. musicdock-mini-1.1.0.zipを「すべて展開」します。
+1. musicdock-mini-1.1.1.zipを「すべて展開」します。
 2. Chrome: chrome://extensions / Edge: edge://extensions をアドレスバーに入力。
 3. 開発者モードをオンにします。
 4. 「パッケージ化されていない拡張機能を読み込む」または「展開して読み込み」で、manifest.jsonが入ったフォルダを選択。

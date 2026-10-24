@@ -33,6 +33,11 @@ test('real extension loads in isolated world; real Document PiP lifecycle on fix
     await pip.getByRole('slider',{name:'再生位置',exact:true}).fill('45');await expect.poll(()=>page.locator('video').evaluate((v:HTMLVideoElement)=>v.currentTime)).toBe(45);
     await pip.getByRole('button',{name:'ミュート',exact:true}).click();await expect.poll(()=>page.locator('video').evaluate((v:HTMLVideoElement)=>v.muted)).toBe(true);
     await pip.setViewportSize({width:370,height:240});await pip.screenshot({path:'docs/player-fixture.png'});
+    await pip.setViewportSize({width:270,height:195});
+    await expect(pip.locator('.title')).toBeVisible();
+    await expect(pip.getByRole('button',{name:'再生',exact:true})).toBeVisible();
+    expect(await pip.evaluate(()=>document.documentElement.scrollWidth <= window.innerWidth && document.documentElement.scrollHeight <= window.innerHeight)).toBe(true);
+    await pip.setViewportSize({width:370,height:240});
     await pip.getByRole('button',{name:'閉じる',exact:true}).click();await expect.poll(()=>pip.isClosed()).toBe(true);await expect(page.locator('.title')).toHaveText('Previous song');
     await page.mouse.click(bounds!.x+bounds!.width/2,bounds!.y+bounds!.height/2);await expect.poll(()=>context!.pages().length).toBe(3); // initial blank, source, PiP
     await page.reload();await expect(page.locator('#musicdock-host')).toBeAttached();

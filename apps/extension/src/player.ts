@@ -20,6 +20,8 @@ input[type=range]{min-width:0;height:22px;margin:0;cursor:pointer}.seek{width:10
 .status{font-size:10px;line-height:1.4;color:#abbcb0;margin:0;min-height:0}.status:empty{display:none}
 @media(max-width:330px){.shell{padding:10px;gap:8px}.track{grid-template-columns:55px minmax(0,1fr);gap:9px}.art,.cover{width:55px;height:55px}.controls{gap:6px}.volume{max-width:42px}.brand{letter-spacing:0}}
 @media(max-width:265px){.volume{display:none}.controls{justify-content:space-around}}
+@media(max-height:218px){.shell{gap:6px;padding:7px 12px}.header{height:22px}.header button{height:22px;width:22px;min-width:22px}.track{grid-template-columns:52px minmax(0,1fr)}.art,.cover{width:52px;height:52px}.title{font-size:14px}.artist{font-size:11px}.progress input[type=range]{height:18px}.controls button{width:32px;height:32px}.controls .primary{width:38px;height:38px}.status{font-size:9px}}
+@media(max-height:175px){.status{display:none}.header{height:20px}.track{grid-template-columns:44px minmax(0,1fr)}.art,.cover{width:44px;height:44px}}
 @media(prefers-reduced-motion:no-preference){button{transition:background .14s}}
 `;
 export function mountPlayer(win: Window, adapter: MusicAdapter, onReturn: () => void) {
@@ -30,7 +32,7 @@ export function mountPlayer(win: Window, adapter: MusicAdapter, onReturn: () => 
   function button(label:string,text:string,run:()=>void,className='') {const b=el('button',className,text);b.type='button';b.setAttribute('aria-label',label);b.title=label;b.addEventListener('click',run);return b;}
   const shell=el('main','shell'), header=el('header','header'), track=el('section','track'), art=el('div','art'), cover=el('canvas','cover'), meta=el('div','meta'), title=el('div','title'), artist=el('div','artist');
   shell.setAttribute('aria-label','MusicDock Mini プレイヤー');
-  header.append(el('span','brand','MUSICDOCK / MINI'),button('YouTube Musicに戻る','↗',onReturn),button('閉じる','×',()=>win.close()));
+  header.append(el('span','brand','MUSICDOCK / v1.1.1'),button('YouTube Musicに戻る','↗',onReturn),button('閉じる','×',()=>win.close()));
   let drawnCover='';
   cover.width=cover.height=160;cover.setAttribute('role','img');cover.setAttribute('aria-label','アルバムジャケット');art.append(cover);meta.append(title,artist);track.append(art,meta);
   const progress=el('section','progress'), current=el('span','time'), duration=el('span','time'), seek=el('input','seek');seek.type='range';seek.min='0';seek.step='1';seek.setAttribute('aria-label','再生位置');progress.append(current,seek,duration);
