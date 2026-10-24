@@ -1,6 +1,27 @@
 import {MusicAdapter, formatTime, type Action} from './adapter';
 export const playerCSS = `
-:root{color-scheme:dark;font-family:system-ui,'Segoe UI',sans-serif;background:#141719;color:#f3f5f4}*{box-sizing:border-box}body{margin:0}button,input{font:inherit}button{cursor:pointer;color:inherit;border:1px solid #38413e;background:#202724;border-radius:50%;min-width:36px;min-height:36px}button:hover{background:#36463e}button:focus-visible,input:focus-visible{outline:2px solid #b8efbf;outline-offset:3px}button:disabled,input:disabled{opacity:.35;cursor:default}.shell{padding:12px 16px;max-width:640px;margin:auto}.header{display:flex;align-items:center;gap:8px;margin-bottom:10px}.brand{font-size:9px;letter-spacing:.14em;color:#b8efbf;margin-right:auto}.header button{font-size:12px;min-height:24px;min-width:24px;border-radius:6px}.track{display:flex;gap:13px;align-items:center}.cover{width:58px;height:58px;object-fit:cover;border-radius:8px;background:#2c3932}.cover:not([data-ready]){visibility:hidden}.art{background:#25342b;border-radius:8px;flex-shrink:0;width:58px;height:58px}.meta{min-width:0}.title{font-size:15px;font-weight:650;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.artist{font-size:12px;color:#abb5af;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-top:5px}.progress{display:flex;gap:9px;align-items:center;margin-top:12px}.time{font-size:10px;color:#acb7b0;font-variant-numeric:tabular-nums}input{accent-color:#b8efbf}input[type=range]{min-width:0;height:20px;margin:0}.seek{flex:1}.controls{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:5px}.primary:hover{background:#d0f6d5}.primary{background:#b8efbf;color:#122018;width:42px;height:42px;font-size:19px;border:0}.volume{width:60px}.status{font-size:10px;color:#a4b6ab;margin:7px 0 0;min-height:14px} @media(max-width:310px){.shell{padding:9px}.volume{width:40px}.controls{gap:7px}.track{gap:9px}.brand{letter-spacing:0}}@media(prefers-reduced-motion:no-preference){button{transition:background .15s}}`;
+:root{color-scheme:dark;font-family:system-ui,'Segoe UI',sans-serif;background:#101514;color:#eff4f0}*{box-sizing:border-box}
+html,body{margin:0;min-width:0;width:100%;overflow:hidden}button,input{font:inherit}
+button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;color:inherit;border:1px solid #33413c;background:transparent;border-radius:9px;width:36px;height:36px;padding:0}
+button:hover{background:#26372e}button:focus-visible,input:focus-visible{outline:2px solid #c3f2cd;outline-offset:2px}button:disabled,input:disabled{opacity:.35;cursor:default}
+.shell{display:flex;flex-direction:column;gap:10px;width:100%;max-width:640px;min-width:0;margin:0 auto;padding:12px 15px}
+.header{display:flex;align-items:center;gap:7px;min-width:0;height:26px}.brand{font-size:9px;letter-spacing:.12em;color:#c3edcf;margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header button{width:26px;height:26px;min-width:26px;border-radius:6px;font-size:13px}
+.track{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center;width:100%;min-width:0}
+.art,.cover{display:block;width:64px;height:64px;border-radius:6px;background:#26312c;overflow:hidden;flex-shrink:0}.cover:not([data-ready]){visibility:hidden}
+.meta{min-width:0;width:100%;max-width:100%;overflow:hidden}.title{font-size:16px;line-height:1.4;font-weight:650;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.artist{font-size:12px;color:#a7b8ac;line-height:1.5;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;margin-top:3px}
+.progress{display:grid;grid-template-columns:minmax(28px,auto) minmax(0,1fr) minmax(28px,auto);gap:8px;align-items:center;min-width:0;width:100%}
+.time{font-size:10px;white-space:nowrap;color:#a6b5ad;font-variant-numeric:tabular-nums}input{accent-color:#bff0c7}
+input[type=range]{min-width:0;height:22px;margin:0;cursor:pointer}.seek{width:100%}
+.controls{display:flex;align-items:center;justify-content:center;gap:9px;min-width:0;width:100%}
+.primary{width:44px;height:44px;border:0;border-radius:50%;background:#bff0c7;color:#142218;font-size:19px}.primary:hover{background:#d2f6d8}
+.mute{margin-left:auto}.volume{flex:0 1 72px;min-width:38px;max-width:72px}
+.status{font-size:10px;line-height:1.4;color:#abbcb0;margin:0;min-height:0}.status:empty{display:none}
+@media(max-width:330px){.shell{padding:10px;gap:8px}.track{grid-template-columns:55px minmax(0,1fr);gap:9px}.art,.cover{width:55px;height:55px}.controls{gap:6px}.volume{max-width:42px}.brand{letter-spacing:0}}
+@media(max-width:265px){.volume{display:none}.controls{justify-content:space-around}}
+@media(prefers-reduced-motion:no-preference){button{transition:background .14s}}
+`;
 export function mountPlayer(win: Window, adapter: MusicAdapter, onReturn: () => void) {
   const doc = win.document;
   doc.documentElement.lang = 'ja'; doc.title = 'MusicDock Mini';
@@ -17,8 +38,8 @@ export function mountPlayer(win: Window, adapter: MusicAdapter, onReturn: () => 
   const status=el('p','status');status.setAttribute('role','status');
   const report=(text:string)=>{message=text;messageUntil=Date.now()+3000;status.textContent=text;};
   function act(action:Action){if(Date.now()<cooldown)return;cooldown=Date.now()+250;if(!adapter.act(action))report('この操作は現在利用できません');render();}
-  const controls=el('nav','controls'), prev=button('前の曲','Ⅰ◀',()=>act('previous')), toggle=button('再生','▶',()=>act('toggle'),'primary'), next=button('次の曲','▶Ⅰ',()=>act('next'));
-  const mute=button('ミュート','音',()=>{adapter.mute();render();}),volume=el('input','volume');volume.type='range';volume.min='0';volume.max='1';volume.step='.05';volume.setAttribute('aria-label','音量');volume.addEventListener('input',()=>adapter.volume(Number(volume.value)));
+  const controls=el('nav','controls'), prev=button('前の曲','⏮',()=>act('previous')), toggle=button('再生','▶',()=>act('toggle'),'primary'), next=button('次の曲','⏭',()=>act('next'));
+  const mute=button('ミュート','♪',()=>{adapter.mute();render();},'mute'),volume=el('input','volume');volume.type='range';volume.min='0';volume.max='1';volume.step='.05';volume.setAttribute('aria-label','音量');volume.addEventListener('input',()=>adapter.volume(Number(volume.value)));
   controls.setAttribute('aria-label','再生操作');controls.append(prev,toggle,next,mute,volume);shell.append(header,track,progress,controls,status);doc.body.append(shell);
   seek.addEventListener('input',()=>{dragging=true;current.textContent=formatTime(Number(seek.value));});
   seek.addEventListener('change',()=>{if(!adapter.seek(Number(seek.value)))report('この再生位置へ移動できません');dragging=false;render();});
@@ -33,8 +54,8 @@ export function mountPlayer(win: Window, adapter: MusicAdapter, onReturn: () => 
     toggle.textContent=s.playing?'Ⅱ':'▶';toggle.setAttribute('aria-label',s.playing?'一時停止':'再生');toggle.title=s.playing?'一時停止':'再生';
     prev.disabled=!adapter.available('previous');toggle.disabled=!adapter.available('toggle');next.disabled=!adapter.available('next');
     current.textContent=dragging?formatTime(Number(seek.value)):formatTime(s.current);duration.textContent=formatTime(s.duration);seek.disabled=!s.canSeek;seek.max=String(Number.isFinite(s.duration)?s.duration:100);if(!dragging)seek.value=String(Math.min(s.current||0,s.duration||0));
-    mute.disabled=volume.disabled=!s.hasMedia;mute.textContent=s.muted?'消':'音';mute.setAttribute('aria-label',s.muted?'ミュート解除':'ミュート');mute.setAttribute('aria-pressed',String(s.muted));if(doc.activeElement!==volume)volume.value=String(s.volume);
-    status.textContent=Date.now()<messageUntil?message:s.status;
+    mute.disabled=volume.disabled=!s.hasMedia;mute.textContent=s.muted?'×':'♪';mute.setAttribute('aria-label',s.muted?'ミュート解除':'ミュート');mute.setAttribute('aria-pressed',String(s.muted));if(doc.activeElement!==volume)volume.value=String(s.volume);
+    status.textContent=Date.now()<messageUntil?message:((s.status==='再生中'||s.status==='一時停止')?'':s.status);
   }
   render();return {render,report};
 }
