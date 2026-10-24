@@ -9,7 +9,7 @@
 単一用途: YouTube Musicの再生状態を小窓に表示し、利用者の再生操作を補助する。
 権限理由: permissions/host_permissionsは追加していません。content_scriptsのmusic.youtube.com限定アクセスは、表示中の曲情報取得とボタン操作に必要です。
 リモートコード: なし。eval、外部スクリプトなし。
-申請ZIP: dist/musicdock-mini-1.1.0.zip
+申請ZIP: dist/musicdock-mini-2.0.1.zip
 アイコン: apps/extension/icons/ の16/48/128px。権利確認後使用。
 
 申請前チェック:

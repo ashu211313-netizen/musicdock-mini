@@ -27,6 +27,14 @@ jobs:
         shell: pwsh
       - run: npx playwright install chromium
       - run: npm run test:browser
+      - name: Preserve the verified extension package
+        uses: actions/upload-artifact@v4
+        with:
+          name: extension-release
+          path: |
+            dist/musicdock-mini-*.zip
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -1,0 +1,13 @@
+{
+  "environment": "Chromium for Testing / headless; not a Windows manual resize certification",
+  "requestOuterSize": [
+    1,
+    1
+  ],
+  "observed": {
+    "width": 244,
+    "height": 57,
+    "scrollWidth": 244,
+    "scrollHeight": 57
+  }
+}

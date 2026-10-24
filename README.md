@@ -1,50 +1,45 @@
-# MusicDock Mini (仮称)
+# MusicDock Mini v2.0.1
 
-YouTube Music用の非公式ミニプレイヤー。Windows 10/11のデスクトップ版Chrome / Edgeを対象としたManifest V3拡張機能です。提供されたYTM Mini - Simple PlayerのセレクタとPiP方式を再利用しています。
+YouTube Musicを小さなDocument Picture-in-Pictureウィンドウで操作する非公式のManifest V3拡張機能です。Windowsのデスクトップ版Chrome / Edgeを対象としています。
 
-**状態: ローカルプレビュー版。GitHub / Pages / Releases / ストアは未公開。実YouTube Musicセッションでの受け入れ確認は未実施。**
+- Web: https://ashu211313-netizen.github.io/musicdock-mini/
+- Release: https://github.com/ashu211313-netizen/musicdock-mini/releases
+- 問い合わせ: https://github.com/ashu211313-netizen/musicdock-mini/issues
 
 ## 使い方
-[導入ガイド](docs/INSTALL.md)を参照。dist/musicdock-mini-1.1.1.zipを展開し、拡張機能管理画面から読み込みます。YouTube Musicを更新し「♫ MINI」をクリック。元タブは開いたままにしてください。
+
+最新版ZIPを展開し、chrome://extensions または edge://extensions からmanifest.jsonのあるフォルダを読み込みます。YouTube Musicタブを更新し「♫ MINI」をクリック。更新後は拡張機能詳細が2.0.1であることを確認してください。旧版との二重読み込みを避けてください。
+
+元のタブは開いたままにします。最前面・移動・サイズ変更・標準タイトルバーはブラウザのPiP機能を使用します。ブラウザ標準UIを削除する処理はありません。
+
+## 同期と安全な操作
+
+再生時計はYouTube Musicの再生バーから取得します。音声操作の対象は時刻・長さが合う一意のnative mediaに限定。曲が切り替わるときはソース更新と安定期間を確認し、シーク中に曲が変わった場合は操作を拒否します。確認できない間は操作を無効化します。古いvideoの数値へはフォールバックしません。
+
+詳細: [同期監査](docs/SYNC-AUDIT.md) / [導入ガイド](docs/INSTALL.md) / [プライバシー](docs/PRIVACY.md) / [変更履歴](CHANGELOG.md)
 
 ## 開発
-Node.js 24以上、npm。ロックファイルは同梱しています。
+
+Node.js 24、npmを使用します。
 
 ```sh
 npm ci
-npm run typecheck
-npm test
-npm run build
-npm run package
 npx playwright install chromium
-npm run test:browser
+npm run check
 ```
 
-Windowsでパッケージ化: `powershell -File scripts/package.ps1`。ビルドをやり直すとZIPは消えるため、最後にパッケージ化してください。`npm run dev` で http://127.0.0.1:8765/dist/website/ を表示。
+`npm run check` は型検査、単体テスト、ビルド、Windows PowerShellでのZIP生成、Playwrightを実行します。`npm run dev` でローカルサイトを表示します。テスト用サーバーは空いているポートを使用して終了時に停止します。
 
-## 構成
-- apps/extension: TypeScriptソース、Manifest、アイコン
-- apps/website: フレームワーク不要の静的サイト、接続しない操作デモ
-- tests: アダプター単体テスト、ブラウザ・拡張機能モックテスト
-- scripts: esbuild、ローカルサーバー、ZIP生成
-- docs: 監査・導入・プライバシー・申請準備・検証結果
-- dist: 拡張機能、静的サイト、ZIP、SHA256
+apps/extensionが拡張機能、apps/websiteが紹介・導入・接続なしデモの静的Webサイトです。Web単体で別タブのYouTube Musicを操作する構成ではありません。
 
-## 公開手順（未実施）
-1. プロトタイプ・アイコンの権利とプロダクト名を確認。
-2. 新しいGitHubリポジトリにこのソースを登録。node_modules/distはコミットしない。
-3. Settings → Pages → SourceをGitHub Actionsに設定。
-4. mainへpushするとpages.ymlが検証・ビルド・Pages配信。実URLでダウンロードとリンクを確認。
-5. `v1.1.1` タグをpushするとrelease.ymlがZIPとハッシュをGitHub Releasesへ登録。
-6. サイトのプライバシー説明に連絡先を追加、ストア申請準備を完了。
+## 公開
 
-利用可能なGitHubコネクターに新規repo/Pages/Release操作はありません。GitHub作成画面へのブラウザアクセスは承認ゲートで拒否されたため、回避経路で公開していません。
+既存mainの更新でPagesワークフローを実行します。成功時に、その実行で検証した同一ZIPとSHA256をReleaseワークフローへ渡して登録します。パッケージ、manifest、サイト、導入ガイドのバージョンはビルドで照合します。
 
-ローカルのmainブランチに実装をコミットしています。外部リモートは未設定です。
+## 確認範囲と制限
 
-## 制限
-DOMはYouTube Musicの非公式インターフェースで変更される可能性があります。ブラウザ標準のPiPで最前面・移動・サイズ変更を実現し、位置をプログラムで指定しません。メディアがシーク可能なときだけシークします。サイズ保存・テーマ切替は未実装。元タブ終了後は利用不可。Chrome/Edge・OS上での実機確認は別途必要です。
+自動テストは生成した無音WAVとテスト用DOMを使います。実YouTube MusicのDOM・時計の丸め差は確認していますが、ユーザーのChromeへ本拡張機能を読み込んだ実サービスの受け入れ確認、Windows/Edgeの最前面・手動リサイズ認証は未完了です。
 
-[監査](docs/AUDIT.md) / [プライバシー](docs/PRIVACY.md) / [ストア準備](docs/STORE.md) / [検証結果](docs/TEST-RESULTS.md)
+370×240、320×220、270×195以下の配置と、テストブラウザで測定した244×57の超小型配置を検証しています。最小サイズはOS・ブラウザごとに異なります。DOMは公式安定APIではなく、変更時は操作が制限される可能性があります。
 
-Google / YouTubeとは提携・承認関係はありません。再配布ライセンスは未確定です。LICENSEを参照。
+Google / YouTubeとの提携・承認関係はありません。提供素材の権利・配布条件はLICENSEを参照。ストアは未申請です。

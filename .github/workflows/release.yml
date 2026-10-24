@@ -2,26 +2,77 @@ name: Package release
 on:
   push:
     tags: ['v*']
+  workflow_run:
+    workflows: ['Verify and deploy Pages']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
 permissions:
   contents: write
+  actions: read
+concurrency:
+  group: release-${{ github.event.workflow_run.head_sha || github.sha }}
+  cancel-in-progress: false
 jobs:
   release:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run build
-      - run: ./scripts/package.ps1
+      - if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-release
+          path: dist
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - if: github.event_name != 'workflow_run'
+        run: npm ci
+      - if: github.event_name != 'workflow_run'
+        run: npm run typecheck
+      - if: github.event_name != 'workflow_run'
+        run: npm test
+      - if: github.event_name != 'workflow_run'
+        run: npm run build
+      - if: github.event_name != 'workflow_run'
+        run: ./scripts/package.ps1
         shell: pwsh
-      - run: npx playwright install chromium
-      - run: npm run test:browser
-      - name: Upload release
+      - if: github.event_name != 'workflow_run'
+        run: npx playwright install chromium
+      - if: github.event_name != 'workflow_run'
+        run: npm run test:browser
+      - name: Validate and publish the exact tested ZIP
+        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create $env:GITHUB_REF_NAME dist/musicdock-mini-1.1.1.zip dist/SHA256SUMS.txt --title "MusicDock Mini $env:GITHUB_REF_NAME" --notes-file CHANGELOG.md
+          RELEASE_SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $tag = "v$version"
+          $zip = "dist/musicdock-mini-$version.zip"
+          if ((Get-Content apps/extension/manifest.json -Raw | ConvertFrom-Json).version -ne $version) { throw 'Manifest version mismatch' }
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne $tag) { throw 'Tag version mismatch' }
+          $expected = ((Get-Content dist/SHA256SUMS.txt).Trim() -split '\s+')[0]
+          if ((Get-FileHash $zip -Algorithm SHA256).Hash.ToLower() -ne $expected) { throw 'ZIP checksum mismatch' }
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $archive = [IO.Compression.ZipFile]::OpenRead((Resolve-Path $zip))
+          try {
+            $reader = [IO.StreamReader]::new($archive.GetEntry('manifest.json').Open())
+            try { $packed = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
+            if ($packed.version -ne $version) { throw 'ZIP version mismatch' }
+          } finally { $archive.Dispose() }
+          gh release view $tag --repo $env:GITHUB_REPOSITORY --json tagName *> $null
+          if ($LASTEXITCODE -eq 0) {
+            Write-Output "Existing release $tag retained; no assets overwritten."
+            exit 0
+          }
+          gh release create $tag $zip dist/SHA256SUMS.txt --repo $env:GITHUB_REPOSITORY --target $env:RELEASE_SHA --title "MusicDock Mini $tag" --notes-file docs/RELEASE-NOTES.md
+          if ($LASTEXITCODE -ne 0) { throw "Release create failed: $LASTEXITCODE" }
