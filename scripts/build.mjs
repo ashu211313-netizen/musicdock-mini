@@ -6,8 +6,9 @@ const website=await readFile('apps/website/index.html','utf8');
 if(manifest.version!==version || !website.includes(`musicdock-mini-${version}.zip`) || !(await readFile('docs/INSTALL.md','utf8')).includes(version)) throw new Error('Release version mismatch across package/manifest/website/install guide');
 await rm('dist',{recursive:true,force:true});
 await mkdir('dist/extension',{recursive:true});
-await build({entryPoints:['apps/extension/src/content.ts'],bundle:true,format:'iife',target:'chrome116',outfile:'dist/extension/content.js',legalComments:'none'});
+await build({entryPoints:['apps/extension/src/content.ts'],bundle:true,loader:{'.woff2':'binary'},format:'iife',target:'chrome116',outfile:'dist/extension/content.js',legalComments:'none'});
 await cp('apps/extension/manifest.json','dist/extension/manifest.json');
+await cp('apps/extension/fonts/OFL.txt','dist/extension/Inter-OFL.txt');
 await cp('apps/extension/icons','dist/extension/icons',{recursive:true});
 await cp('apps/website','dist/website',{recursive:true});
 const escape=s=>s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
@@ -21,5 +22,5 @@ await cp('docs/PRIVACY.md','dist/extension/プライバシー.txt');
 await writeFile('dist/website/.nojekyll','');
 await writeFile('dist/website/version.json',JSON.stringify({version:JSON.parse(await readFile('package.json','utf8')).version}));
 // Test harness bundles the exact production player; it is never packaged with the extension/site.
-await build({stdin:{contents:`import {mountPlayer} from './apps/extension/src/player'; import {MusicAdapter} from './apps/extension/src/adapter'; export function mount(){ return mountPlayer(window,new MusicAdapter(document),()=>{}); }`,resolveDir:process.cwd(),loader:'ts'},bundle:true,format:'iife',globalName:'MusicDockLayout',outfile:'dist/layout-harness.js',target:'chrome116'});
+await build({stdin:{contents:`import {mountPlayer} from './apps/extension/src/player'; import {MusicAdapter} from './apps/extension/src/adapter'; export function mount(){ return mountPlayer(window,new MusicAdapter(document),()=>{}); }`,resolveDir:process.cwd(),loader:'ts'},bundle:true,loader:{'.woff2':'binary'},format:'iife',globalName:'MusicDockLayout',outfile:'dist/layout-harness.js',target:'chrome116'});
 console.log('Built extension and subpath-safe static website. Run scripts/package.ps1 to attach the extension ZIP.');

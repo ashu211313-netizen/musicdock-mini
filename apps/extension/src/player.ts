@@ -1,12 +1,15 @@
+import interFont from '../fonts/InterVariable.woff2';
 import {MusicAdapter, formatTime, type Action} from './adapter';
 
 // All dimensions include the complete click target, not only the icon glyph.
 export const playerCSS = `
 :root {
   color-scheme: dark;
-  font-family: system-ui, 'Segoe UI', 'Yu Gothic UI', sans-serif;
+  font-family: 'MusicDock Inter', 'Yu Gothic UI', Meiryo, sans-serif;
+  font-optical-sizing: auto;
+  font-synthesis: none;
   background: #0b0d0c;
-  color: #eef2ef;
+  color: #eff3f0;
   --accent: #b4d8b3;
   --muted: #8c9890;
 }
@@ -30,7 +33,7 @@ button svg { display: block; width: 18px; height: 18px; flex: none; }
   padding: 10px 16px;
 }
 .header { display: flex; align-items: center; gap: 4px; min-width: 0; height: 20px; flex-shrink: 0; }
-.brand { display: flex; align-items: center; gap: 7px; min-width: 0; margin-right: auto; color: #8c9c91; font-size: 9px; font-weight: 600; line-height: 16px; letter-spacing: .15em; white-space: nowrap; }
+.brand { display: flex; align-items: center; gap: 7px; min-width: 0; margin-right: auto; color: #8c9c91; font-size: 10px; font-weight: 550; line-height: 16px; letter-spacing: .035em; white-space: nowrap; }
 .brand::before { content: ''; width: 4px; height: 4px; background: var(--accent); border-radius: 50%; flex: none; }
 .header button { width: 26px; height: 26px; border-radius: 5px; color: #748279; }
 .header button svg { width: 14px; height: 14px; }
@@ -41,8 +44,8 @@ button svg { display: block; width: 18px; height: 18px; flex: none; }
 .cover:not([data-ready]) { visibility: hidden; }
 .meta { flex: 1 1 0%; min-width: 0; }
 .title, .artist { display: block; min-width: 0; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.title { font-size: 17px; font-weight: 600; line-height: 1.5; letter-spacing: -.025em; }
-.artist { margin-top: 6px; font-size: 12px; line-height: 1.6; color: #9aa79e; }
+.title { font-size: 18px; font-weight: 580; line-height: 26px; letter-spacing: -.018em; }
+.artist { margin-top: 4px; font-size: 12.5px; font-weight: 450; line-height: 20px; letter-spacing: 0; color: #a2afa6; }
 .progress { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .seek { width: 100%; min-width: 0; margin: 0; }
 input[type=range] { appearance: none; -webkit-appearance: none; cursor: pointer; background: transparent; height: 16px; padding: 0; }
@@ -50,7 +53,7 @@ input[type=range]::-webkit-slider-runnable-track { height: 2px; border-radius: 2
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 6px; height: 6px; margin-top: -2px; border-radius: 50%; background: #c8e6c6; }
 input[type=range]:hover::-webkit-slider-thumb, input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px #b4d8b31a; }
 .times { display: flex; justify-content: space-between; gap: 12px; min-width: 0; }
-.time { flex: 0 0 auto; font-size: 10px; line-height: 12px; letter-spacing: .025em; font-variant-numeric: tabular-nums; color: #77867c; }
+.time { flex: 0 0 auto; font-size: 11px; font-weight: 500; line-height: 12px; letter-spacing: 0; font-variant-numeric: lining-nums tabular-nums; color: #8d9b92; }
 .current { color: #aebdb2; }
 .controls { position: relative; display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; min-width: 0; }
 .transport { grid-column: 2; display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; }
@@ -71,15 +74,15 @@ button.primary:hover { background: #c9e5c5; color: #132216; }
   .shell { padding: 10px 12px; gap: 6px; }
   .track { gap: 12px; }
   .art { width: 64px; height: 64px; flex-basis: 64px; }
-  .title { font-size: 15px; }
-  .artist { margin-top: 4px; font-size: 11px; }
+  .title { font-size: 17px; line-height: 25px; }
+  .artist { margin-top: 3px; font-size: 12px; line-height: 19px; }
   .transport { gap: 8px; }
   button.primary { width: 44px; height: 44px; }
 }
 @media (max-width: 240px) {
   .shell { padding: 10px; }
   .art { width: 54px; height: 54px; flex-basis: 54px; }
-  .brand { font-size: 8px; letter-spacing: .08em; }
+  .brand { font-size: 9px; letter-spacing: .025em; }
   .transport { gap: 4px; }
   .transport > button:not(.primary) { width: 28px; }
 }
@@ -96,11 +99,11 @@ button.primary:hover { background: #c9e5c5; color: #132216; }
  .header { height: 18px; }
  .art { width: 56px; height: 56px; flex-basis: 56px; max-width: 56px; max-height: 56px; }
  .track { gap: 12px; }
- .title { font-size: 14px; }
- .artist { font-size: 11px; margin-top: 3px; }
+ .title { font-size: 16px; line-height: 24px; }
+ .artist { font-size: 12px; line-height: 18px; margin-top: 2px; }
  .progress { gap: 2px; }
  .progress input { height: 12px; }
- .time { font-size: 9px; line-height: 10px; }
+ .time { font-size: 10px; line-height: 12px; }
  button.primary { width: 40px; height: 40px; }
  .status { font-size: 9px; line-height: 12px; min-height: 12px; }
  .volume-panel { bottom: 46px; }
@@ -110,7 +113,7 @@ button.primary:hover { background: #c9e5c5; color: #132216; }
  .art { width: 42px; height: 42px; flex-basis: 42px; }
  .header { height: 16px; }
  .header button { width: 24px; height: 24px; }
- .title { font-size: 13px; }
+ .title { font-size: 14px; line-height: 21px; }
  button.primary { width: 36px; height: 36px; }
  .transport { gap: 8px; }
 }
@@ -154,8 +157,12 @@ type Icon = keyof typeof paths;
 
 export function mountPlayer(win: Window, adapter: MusicAdapter, onReturn: () => void) {
   const doc = win.document;
+  // Embedded bytes: no font URL, page permission, network request or OS installation.
+  const face = new FontFace('MusicDock Inter', interFont.buffer as ArrayBuffer, {weight: '100 900', style: 'normal', display: 'swap'});
+  doc.fonts.add(face);
+  const fontsReady = face.load().then(() => undefined).catch(() => { doc.fonts.delete(face); });
   doc.documentElement.lang = 'ja';
-  doc.title = 'MusicDock Mini 2.0.1';
+  doc.title = 'MusicDock Mini 2.0.2';
   const style = doc.createElement('style');
   style.textContent = playerCSS;
   doc.head.append(style);
@@ -191,7 +198,7 @@ export function mountPlayer(win: Window, adapter: MusicAdapter, onReturn: () => 
   const shell = el('main', 'shell');
   shell.setAttribute('aria-label', 'MusicDock Mini プレイヤー');
   const header = el('header', 'header');
-  header.append(el('span', 'brand', 'MUSICDOCK MINI'), button('YouTube Musicに戻る', 'return', onReturn), button('閉じる', 'close', () => win.close()));
+  header.append(el('span', 'brand', 'MusicDock Mini'), button('YouTube Musicに戻る', 'return', onReturn), button('閉じる', 'close', () => win.close()));
   const track = el('section', 'track');
   const art = el('div', 'art');
   const cover = el('canvas', 'cover');
@@ -315,5 +322,5 @@ export function mountPlayer(win: Window, adapter: MusicAdapter, onReturn: () => 
     status.title = status.textContent;
   }
   render();
-  return {render, report};
+  return {render, report, fontsReady};
 }

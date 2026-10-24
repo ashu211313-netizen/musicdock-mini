@@ -1,4 +1,4 @@
-# MusicDock Mini v2.0.1
+# MusicDock Mini v2.0.2
 
 YouTube Musicを小さなDocument Picture-in-Pictureウィンドウで操作する非公式のManifest V3拡張機能です。Windowsのデスクトップ版Chrome / Edgeを対象としています。
 
@@ -8,7 +8,7 @@ YouTube Musicを小さなDocument Picture-in-Pictureウィンドウで操作す�
 
 ## 使い方
 
-最新版ZIPを展開し、chrome://extensions または edge://extensions からmanifest.jsonのあるフォルダを読み込みます。YouTube Musicタブを更新し「♫ MINI」をクリック。更新後は拡張機能詳細が2.0.1であることを確認してください。旧版との二重読み込みを避けてください。
+最新版ZIPを展開し、chrome://extensions または edge://extensions からmanifest.jsonのあるフォルダを読み込みます。YouTube Musicタブを更新し「♫ MINI」をクリック。更新後は拡張機能詳細が2.0.2であることを確認してください。旧版との二重読み込みを避けてください。
 
 元のタブは開いたままにします。最前面・移動・サイズ変更・標準タイトルバーはブラウザのPiP機能を使用します。ブラウザ標準UIを削除する処理はありません。
 
