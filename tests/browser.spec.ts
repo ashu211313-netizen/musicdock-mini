@@ -94,7 +94,7 @@ test('v2 layout: long metadata, centered transport and compact windows', async (
   await page.locator('video').evaluate(m=>m.dispatchEvent(new Event('loadedmetadata')));
   await page.evaluate(()=>(window as any).layoutUI.render());
   await expect(page.getByRole('slider',{name:'再生位置',exact:true})).toBeEnabled();
-  for(const [width,height] of [[370,240],[320,220],[270,195],[240,170],[220,160],[244,57],[520,280]]) {
+  for(const [width,height] of [[370,240],[320,220],[270,195],[240,170],[220,160],[500,80],[500,66],[320,57],[244,57],[520,280]]) {
     await page.setViewportSize({width,height});
     const geometry=await page.evaluate(()=>{
       const q=(s:string)=>document.querySelector<HTMLElement>(s)!;
@@ -107,6 +107,18 @@ test('v2 layout: long metadata, centered transport and compact windows', async (
         titleTruncated:title.scrollWidth>title.clientWidth,artistTruncated:artist.scrollWidth>artist.clientWidth,
         titleBox:title.getBoundingClientRect().height,titleLine:parseFloat(getComputedStyle(title).lineHeight),shellWidth:shell.width};
     });
+    if(height<=100){
+      const compact=await page.evaluate(()=>{
+        const rect=(selector:string)=>{const r=document.querySelector(selector)!.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width};};
+        return {track:rect('.track'),controls:rect('.controls'),progress:rect('.progress'),start:rect('.current'),end:rect('.times .time:not(.current)'),seek:rect('.seek')};
+      });
+      expect(compact.track.bottom).toBeLessThanOrEqual(compact.progress.top+1);
+      expect(compact.controls.bottom).toBeLessThanOrEqual(compact.progress.top+1);
+      expect(compact.start.right).toBeLessThan(compact.seek.left);
+      expect(compact.seek.right).toBeLessThan(compact.end.left);
+      expect(compact.seek.width).toBeGreaterThan(30);
+      if(width===500&&height===66)await page.screenshot({path:'docs/player-ultracompact.png'});
+    }
     expect(geometry.horizontal,`${width} horizontal`).toBe(true);
     expect(geometry.vertical,`${width}x${height} vertical`).toBe(true);
     if(height>100) expect(geometry.center,`${width} play centered`).toBeLessThanOrEqual(1);
