@@ -28,7 +28,7 @@ export class MusicAdapter {
   private pendingSince = 0;
   private transitionUntil = 0;
   private serial = 0;
-  constructor(private doc:Document, private settleMs = 600) {}
+  constructor(private doc:Document, private settleMs = 200) {}
   bar() {
     return [...this.doc.querySelectorAll('ytmusic-player-bar')].find(bar => !bar.closest('[inert], [hidden], [aria-hidden="true"]')) ?? null;
   }
@@ -73,8 +73,11 @@ export class MusicAdapter {
     const title = clean(bar?.querySelector('.title, #title')?.textContent);
     const image = this.coverElement();
     const cover = safeCover(image?.currentSrc || image?.src || '');
-    const key = JSON.stringify([title,this.artistName(),cover.split('=')[0]]);
-    const fail = (reason:string) => {this.pendingSignature=''; return {bar,timing,title,cover,key,media:null as HTMLMediaElement|null,token:'',reason};};
+    // Artwork/artist presentation can hydrate independently of the playing resource.
+    const href = bar?.querySelector<HTMLAnchorElement>('.title a[href], a.title[href]')?.getAttribute('href');
+    let videoId = ''; try { videoId = href ? new URL(href,'https://music.youtube.com').searchParams.get('v') || '' : ''; } catch { /* Title remains the fallback identity. */ }
+    const key = JSON.stringify([title,videoId || this.artistName()]);
+    const fail = (reason:string) => {return {bar,timing,title,cover,key,media:null as HTMLMediaElement|null,token:'',reason};};
     if (!bar) return fail('YouTube Musicの再生バーを確認してください');
     if (!title) return fail('YouTube Musicで曲を選んでください');
     if (!timing) return fail('再生時間を取得できません');
@@ -104,6 +107,19 @@ export class MusicAdapter {
     }
     return {bar,timing,title,cover,key,media,token:this.binding!.token,reason:''};
   }
+  /** Update on relevant DOM/media events; polling remains a recovery fallback. */
+  watch(update:()=>void) {
+    let queued:ReturnType<typeof setTimeout>|undefined;
+    const schedule=()=>{ if(queued===undefined) queued=setTimeout(()=>{queued=undefined;update();},50); };
+    const observer=new MutationObserver(records=>{
+      if(records.some(r=>{const el=r.target instanceof Element?r.target:r.target.parentElement;return !!el?.closest('ytmusic-player-bar, #movie_player') || [...r.addedNodes].some(n=>n instanceof Element && (n.matches('ytmusic-player-bar, #movie_player')||!!n.querySelector('ytmusic-player-bar, #movie_player')));})) schedule();
+    });
+    observer.observe(this.doc.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['href','src','aria-valuenow','aria-valuemax','aria-label','disabled','title']});
+    const events=['timeupdate','durationchange','loadedmetadata','play','pause','seeking','seeked','volumechange','emptied'];
+    const onMedia=(event:Event)=>{if(event.target instanceof HTMLMediaElement && event.target.closest('#movie_player'))schedule();};
+    for(const event of events)this.doc.addEventListener(event,onMedia,true);
+    return ()=>{observer.disconnect();clearTimeout(queued);for(const event of events)this.doc.removeEventListener(event,onMedia,true);};
+  }
   media() { return this.resolve().media; }
   snapshot() {
     const state = this.resolve(), media = state.media;
@@ -119,7 +135,7 @@ export class MusicAdapter {
   }
   act(action:Action) {
     if (!this.available(action)) return false;
-    if (action !== 'toggle') { this.transitionUntil=Date.now()+750; this.pendingSignature=''; }
+    if (action !== 'toggle') { this.transitionUntil=Date.now()+150; this.pendingSignature=''; }
     this.button(action)!.click(); return true;
   }
   seek(value:number, expectedTrackKey?:string) {

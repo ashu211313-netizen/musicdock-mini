@@ -1,8 +1,8 @@
-# MusicDock Mini 2.0.2 導入ガイド
+# MusicDock Mini 2.0.3 導入ガイド
 
 Windows 10 / 11、最新のデスクトップ版Google ChromeまたはMicrosoft Edgeを使用してください。
 
-1. musicdock-mini-2.0.2.zipを「すべて展開」します。
+1. musicdock-mini-2.0.3.zipを「すべて展開」します。
 2. Chrome: chrome://extensions / Edge: edge://extensions をアドレスバーに入力。
 3. 開発者モードをオンにします。
 4. 「パッケージ化されていない拡張機能を読み込む」または「展開して読み込み」で、manifest.jsonが入ったフォルダを選択。
@@ -23,4 +23,4 @@ Windows 10 / 11、最新のデスクトップ版Google ChromeまたはMicrosoft 
 ストア未公開のプレビュー版です。実サービス上の互換性確認は未完了です。Google / YouTubeの公式アプリではありません。
 
 
-更新後は拡張機能管理画面の詳細でバージョン2.0.2を確認し、旧版との二重読み込みを避けてYouTube Musicタブを更新してください。
+更新後は拡張機能管理画面の詳細でバージョン2.0.3を確認し、旧版との二重読み込みを避けてYouTube Musicタブを更新してください。

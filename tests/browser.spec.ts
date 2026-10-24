@@ -39,7 +39,7 @@ test('real extension loads in isolated world; real Document PiP lifecycle on fix
     const minimum=await pip.evaluate(()=>({width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight}));
     await writeFile('docs/browser-minimum.json',JSON.stringify({environment:'Chromium for Testing / headless; not a Windows manual resize certification',requestOuterSize:[1,1],observed:minimum},null,2));
     expect(minimum.scrollWidth).toBeLessThanOrEqual(minimum.width);expect(minimum.scrollHeight).toBeLessThanOrEqual(minimum.height);
-    await pip.screenshot({path:'../musicdock-2.0.2-native-minimum.png'});
+    await pip.screenshot({path:'../musicdock-2.0.3-native-minimum.png'});
     await pip.getByRole('button',{name:'再生',exact:true}).scrollIntoViewIfNeeded();await expect(pip.getByRole('button',{name:'再生',exact:true})).toBeVisible();
     await pip.setViewportSize({width:370,height:240});await pip.screenshot({path:'docs/player-fixture.png'});
     expect(pip.isClosed()).toBe(false);await pip.getByRole('button',{name:'閉じる',exact:true}).click().catch(error=>{if(!pip.isClosed())throw error;});await expect.poll(()=>pip.isClosed()).toBe(true);await expect(page.locator('.title')).toHaveText('Previous song');
@@ -74,7 +74,7 @@ test('v2 layout: long metadata, centered transport and compact windows', async (
   await page.evaluate(()=>(window as any).layoutUI.render());
   await expect(page.locator('main .current')).toHaveText('1:24');
   await expect(page.getByRole('slider',{name:'再生位置',exact:true})).toBeEnabled();
-  await page.screenshot({path:'../musicdock-2.0.2-finished.png'});
+  await page.screenshot({path:'../musicdock-2.0.3-finished.png'});
   await page.screenshot({path:'docs/player-v2.png'});
   await page.getByRole('button',{name:'音量調整',exact:true}).click();
   await expect(page.getByRole('slider',{name:'音量',exact:true})).toBeVisible();
@@ -118,6 +118,11 @@ test('v2 layout: long metadata, centered transport and compact windows', async (
       expect(compact.seek.right).toBeLessThan(compact.end.left);
       expect(compact.seek.width).toBeGreaterThan(30);
       if(width===500&&height===66)await page.screenshot({path:'docs/player-ultracompact.png'});
+      await page.evaluate(()=>(window as any).layoutUI.report('再生情報の同期を確認中…'));
+      await expect(page.locator('main .seek')).toBeVisible();
+      expect(await page.locator('main .progress').evaluate(n=>getComputedStyle(n).visibility)).toBe('visible');
+      if(width===500&&height===66)await page.screenshot({path:'../musicdock-2.0.3-compact-sync.png'});
+      await page.evaluate(()=>{(window as any).layoutUI.report('');(window as any).layoutUI.render();});
     }
     expect(geometry.horizontal,`${width} horizontal`).toBe(true);
     expect(geometry.vertical,`${width}x${height} vertical`).toBe(true);
@@ -130,8 +135,8 @@ test('v2 layout: long metadata, centered transport and compact windows', async (
     const volumeBox=await page.getByRole('group',{name:'音量設定'}).boundingBox();
     expect(volumeBox!.x).toBeGreaterThanOrEqual(0);expect(volumeBox!.x+volumeBox!.width).toBeLessThanOrEqual(width);
     await page.keyboard.press('Escape');
-    if(width===270)await page.screenshot({path:'../musicdock-2.0.2-compact-long-text.png'});
-    if(width===370)await page.screenshot({path:'../musicdock-2.0.2-long-text.png'});
+    if(width===270)await page.screenshot({path:'../musicdock-2.0.3-compact-long-text.png'});
+    if(width===370)await page.screenshot({path:'../musicdock-2.0.3-long-text.png'});
   }
   await page.setViewportSize({width:280,height:220});
   await page.evaluate(()=>(window as any).layoutUI.report('読み込みに失敗しました。元タブの通信状態と再生設定を確認してください。'.repeat(3)));
@@ -198,18 +203,18 @@ test('typography: embedded Inter, native Windows fonts, stable numerals and all 
           const root=await session.send('DOM.getDocument');const node=await session.send('DOM.querySelector',{nodeId:root.root.nodeId,selector:'main .title'});
           const fonts=await session.send('CSS.getPlatformFontsForNode',{nodeId:node.nodeId});
           expect(fonts.fonts.some((f:any)=>f.isCustomFont&&f.familyName.includes('Inter'))).toBe(true);
-          await writeFile(`../musicdock-2.0.2-fonts-${channel}.json`,JSON.stringify({browser:localBrowser?.version()||browser.version(),platform:process.platform,fonts:fonts.fonts},null,2));
+          await writeFile(`../musicdock-2.0.3-fonts-${channel}.json`,JSON.stringify({browser:localBrowser?.version()||browser.version(),platform:process.platform,fonts:fonts.fonts},null,2));
           const digitWidths=await page.evaluate(()=>{const s=document.createElement('span');s.className='time';s.style.display='inline-block';document.body.append(s);const widths=['1:11','2:22','8:88','0:00'].map(t=>{s.textContent=t;return s.getBoundingClientRect().width});s.remove();return widths;});expect(new Set(digitWidths).size).toBe(1);
         }
         for(const [width,height] of [[370,240],[320,220],[270,195],[244,57]]){
           await page.setViewportSize({width,height});
           expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth&&document.documentElement.scrollHeight<=innerHeight)).toBe(true);
-          await page.screenshot({path:`../musicdock-2.0.2-type-${variant}-${channel}-${width}x${height}.png`});
+          await page.screenshot({path:`../musicdock-2.0.3-type-${variant}-${channel}-${width}x${height}.png`});
           if(variant==='after'){
             const long='日本語の長い曲名 / An Extremely Long English Title Without Compromising Legibility';
             await page.locator('ytmusic-player-bar .title').evaluate((n,t)=>n.textContent=t,long);await page.evaluate(()=>(window as any).layoutUI.render());await page.locator('video').evaluate(m=>m.dispatchEvent(new Event('loadedmetadata')));await page.waitForTimeout(800);await expect(page.locator('main .status')).toBeEmpty();await expect(page.locator('main .title')).toHaveAttribute('title',long);
             expect(await page.locator('main .title').evaluate(n=>getComputedStyle(n).textOverflow)).toBe('ellipsis');
-            await page.screenshot({path:`../musicdock-2.0.2-type-long-${channel}-${width}x${height}.png`});
+            await page.screenshot({path:`../musicdock-2.0.3-type-long-${channel}-${width}x${height}.png`});
             await page.locator('ytmusic-player-bar .title').evaluate(n=>n.textContent='夜の余白 / After Hours');await page.locator('video').evaluate(m=>m.dispatchEvent(new Event('loadedmetadata')));await page.waitForTimeout(800);await page.evaluate(()=>(window as any).layoutUI.render());
           }
         }

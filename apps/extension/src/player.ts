@@ -140,9 +140,9 @@ button.primary:hover { background: #c9e5c5; color: #132216; }
  .current{grid-column:1;grid-row:1}
  .times .time:not(.current){grid-column:3;grid-row:1;justify-self:end}
  .seek{grid-column:2;grid-row:1;flex:none;width:100%;min-width:0;height:13px;margin:0}
- .status{display:none}
- .status:not(:empty){position:absolute;display:block;left:9px;right:9px;bottom:3px;z-index:2;margin:0;max-width:calc(100% - 18px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;background:#0b0d0c;color:#c9dccb;font-size:9px;line-height:13px}
- .shell:has(.status:not(:empty)) .progress{visibility:hidden}
+ .status{position:absolute;width:1px;height:1px;min-height:0;overflow:hidden;clip-path:inset(50%)}
+ .shell:has(.status:not(:empty)) .artist{font-size:0}
+ .shell:has(.status:not(:empty)) .artist::after{content:attr(data-status);font-size:9px}
  .volume-panel{position:fixed;top:4px;right:4px;bottom:auto;width:168px;height:40px;max-width:calc(100% - 8px)}
 }
 @media (max-width:270px) and (max-height:100px) {
@@ -187,7 +187,7 @@ export function mountPlayer(win: Window, adapter: MusicAdapter, onReturn: () => 
   doc.fonts.add(face);
   const fontsReady = face.load().then(() => undefined).catch(() => { doc.fonts.delete(face); });
   doc.documentElement.lang = 'ja';
-  doc.title = 'MusicDock Mini 2.0.2';
+  doc.title = 'MusicDock Mini 2.0.3';
   const style = doc.createElement('style');
   style.textContent = playerCSS;
   doc.head.append(style);
@@ -250,7 +250,7 @@ export function mountPlayer(win: Window, adapter: MusicAdapter, onReturn: () => 
   let dragging = false, cooldown = 0, message = '', messageUntil = 0, drawnCover = '', displayedTrackKey = '', scrubTrackKey = '';
   const status = el('p', 'status');
   status.setAttribute('role', 'status');
-  function report(text: string) { message = text; messageUntil = Date.now() + 3000; status.textContent = text; }
+  function report(text: string) { message = text; messageUntil = Date.now() + 3000; status.textContent = text; artist.dataset.status = text; artist.title = [artist.textContent,text].filter(Boolean).join(' / '); }
   function act(action: Action) {
     if (Date.now() < cooldown) return;
     cooldown = Date.now() + 250;
@@ -345,6 +345,8 @@ export function mountPlayer(win: Window, adapter: MusicAdapter, onReturn: () => 
     // Ordinary playback is already conveyed by the play/pause button. Reserve text for actionable states.
     status.textContent = Date.now() < messageUntil ? message : ['再生中', '一時停止'].includes(state.status) ? '' : state.status;
     status.title = status.textContent;
+    artist.dataset.status = status.textContent;
+    artist.title = [state.artist,status.textContent].filter(Boolean).join(" / ");
   }
   render();
   return {render, report, fontsReady};
