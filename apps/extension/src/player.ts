@@ -118,27 +118,52 @@ button.primary:hover { background: #c9e5c5; color: #132216; }
  .transport { gap: 8px; }
 }
 /* The native PiP can shrink far below the requested size. Keep every music control reachable without scroll. */
+/* Very short PiP: two aligned rows, no overlapping absolute-position controls. */
 @media (max-height: 100px) {
- .shell { position: relative; padding: 4px; gap: 3px; }
- .header { display: none; }
- .track { gap: 6px; padding-right: 104px; min-height: 28px; }
- .art { width: 28px; height: 28px; flex-basis: 28px; border-radius: 3px; }
- .title { font-size: 11px; line-height: 14px; }
- .artist { font-size: 9px; line-height: 12px; margin: 0; }
- .progress { flex-direction: row; align-items: center; gap: 7px; height: 14px; }
- .times { flex: 0 0 68px; gap: 4px; }
- .seek { flex: 1 1 0%; width: 0; height: 12px; }
- .time { font-size: 8px; line-height: 12px; }
- .controls { position: absolute; top: 4px; right: 4px; display: flex; gap: 0; }
- .transport { gap: 0; }
- .transport > button:not(.primary) { width: 24px; height: 28px; }
- button.primary { width: 28px; height: 28px; }
- .primary svg { width: 17px; height: 17px; }
- .sound > button { width: 24px; height: 28px; }
- .volume-panel { position: fixed; top: 4px; right: 4px; bottom: auto; width: 168px; height: 40px; max-width: calc(100% - 8px); }
- .status { position: absolute; left: 4px; right: 4px; bottom: 4px; min-height: 12px; height: 12px; line-height: 12px; font-size: 9px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
- .status:empty { display: none; }
- .shell:has(.status:not(:empty)) .progress { visibility: hidden; }
+ html,body{height:100%;overflow:hidden}
+ .shell{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:minmax(0,1fr) 14px;gap:3px 8px;align-items:center;min-height:0;height:100vh;width:100%;max-width:none;padding:4px 9px;margin:0}
+ .header{display:none}
+ .track{grid-column:1;grid-row:1;align-self:center;gap:8px;padding:0;min-width:0;min-height:0;overflow:hidden;width:100%}
+ .art{width:30px;height:30px;flex:0 0 30px;max-width:30px;max-height:30px;border-radius:4px}
+ .meta{min-width:0;overflow:hidden}
+ .title{font-size:13px;line-height:16px;font-weight:650}
+ .artist{margin:0;font-size:10px;line-height:13px}
+ .controls{position:static;grid-column:2;grid-row:1;display:flex;align-items:center;justify-self:end;gap:2px;min-width:0;width:auto}
+ .transport{display:flex;align-items:center;gap:3px}
+ .transport>button:not(.primary){width:26px;height:30px}
+ button.primary{width:32px;height:32px}
+ .primary svg{width:19px;height:19px}
+ .sound>button{width:24px;height:28px}
+ .progress{grid-column:1/-1;grid-row:2;display:grid;grid-template-columns:30px minmax(0,1fr) 30px;grid-template-rows:14px;align-items:center;gap:0 7px;height:14px;min-width:0;width:100%;margin:0}
+ .times{display:contents}
+ .time{font-size:9px;line-height:14px;white-space:nowrap}
+ .current{grid-column:1;grid-row:1}
+ .times .time:not(.current){grid-column:3;grid-row:1;justify-self:end}
+ .seek{grid-column:2;grid-row:1;flex:none;width:100%;min-width:0;height:13px;margin:0}
+ .status{display:none}
+ .status:not(:empty){position:absolute;display:block;left:9px;right:9px;bottom:3px;z-index:2;margin:0;max-width:calc(100% - 18px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;background:#0b0d0c;color:#c9dccb;font-size:9px;line-height:13px}
+ .shell:has(.status:not(:empty)) .progress{visibility:hidden}
+ .volume-panel{position:fixed;top:4px;right:4px;bottom:auto;width:168px;height:40px;max-width:calc(100% - 8px)}
+}
+@media (max-width:270px) and (max-height:100px) {
+ .shell{gap:2px 3px;padding:3px 5px}
+ .track{gap:5px}
+ .art{width:24px;height:24px;max-width:24px;max-height:24px;flex-basis:24px}
+ .title{font-size:11px;line-height:14px}
+ .artist{font-size:9px;line-height:11px}
+ .transport{gap:0}
+ .transport>button:not(.primary){width:23px;height:26px}
+ button.primary{width:27px;height:27px}
+ .sound>button{width:21px;height:26px}
+ .progress{column-gap:3px}
+}
+@media (max-height:65px){
+ .shell{padding-top:2px;padding-bottom:2px;row-gap:1px}
+ .art{width:24px;height:24px;max-width:24px;max-height:24px;flex-basis:24px}
+ .transport>button:not(.primary){height:25px}
+ button.primary{width:26px;height:26px}
+ .progress{grid-template-rows:12px;height:12px}
+ .time{line-height:12px}
 }
 @media (prefers-reduced-motion: no-preference) { button { transition: background .14s, color .14s; } }
 `;
